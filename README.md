@@ -1,5 +1,6 @@
 ## Ember-dyna-table
 [![Ember Observer Score](https://emberobserver.com/badges/ember-dyna-table.svg)](https://emberobserver.com/addons/ember-dyna-table)
+[![Build Status](https://travis-ci.org/ember-dyna-table/ember-dyna-table.svg?branch=master)](https://travis-ci.org/ember-dyna-table/ember-dyna-table)
 
 **Ember-dyna-table** is an [Ember.js](https://www.emberjs.com/) addon that includes a powerful component for creating frontends with complicated tables—i.e., involving filtering/sorting/pagination/etc. It aims to balance functionality and extensibility by providing these capabilities/features:
 
