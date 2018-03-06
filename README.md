@@ -18,7 +18,7 @@ You can use this addon out of the box. For the most common use cases, Ember-dyna
 To add this addon into you application use this command:
 `ember install ember-dyna-table`
 
-See [docs](https://zalando-incubator.github.io/ember-dyna-table/#/doc-pages/docs) for more details
+See [docs](https://ember-dyna-table.github.io/ember-dyna-table/#/doc-pages/docs) for more details
 
 ### Development
 
