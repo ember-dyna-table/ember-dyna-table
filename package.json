@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^8.2.2",
+    "bootstrap": "^4.0.0",
     "broccoli-asset-rev": "^2.6.0",
     "broccoli-funnel": "^2.0.1",
     "ember-ajax": "^3.0.0",
