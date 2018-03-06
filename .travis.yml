@@ -33,4 +33,5 @@ script:
 packages:
 - google-chrome-stable
 after_success:
+- chmod +x .travis/codecoverage.sh
 - if [[ $EMBER_TRY_SCENARIO == 'ember-default' ]]; then .travis/codecoverage.sh; fi
