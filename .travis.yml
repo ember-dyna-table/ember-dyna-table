@@ -32,5 +32,5 @@ script:
 - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO test --skip-cleanup
 packages:
 - google-chrome-stable
-after_install:
+after_success:
 - if [[ $EMBER_TRY_SCENARIO == 'ember-default' ]]; then .travis/codecoverage.sh; fi
