@@ -1,25 +1,28 @@
-import { moduleForComponent, test } from 'ember-qunit';
+import { find } from 'ember-native-dom-helpers';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
-moduleForComponent('dtab/selectable-header', 'Integration | Component | dtab/selectable header', {
-  integration: true
-});
+module('Integration | Component | dtab/selectable header', function(hooks) {
+  setupRenderingTest(hooks);
 
-test('it renders', function(assert) {
+  test('it renders', async function(assert) {
 
-  // Set any properties with this.set('myProperty', 'value');
-  // Handle any actions with this.on('myAction', function(val) { ... });
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });
 
-  this.render(hbs`{{dtab/selectable-header}}`);
+    await render(hbs`{{dtab/selectable-header}}`);
 
-  assert.equal(this.$().text().trim(), '');
+    assert.equal(find('*').textContent.trim(), '');
 
-  // Template block usage:
-  this.render(hbs`
-    {{#dtab/selectable-header}}
-      template block text
-    {{/dtab/selectable-header}}
-  `);
+    // Template block usage:
+    await render(hbs`
+      {{#dtab/selectable-header}}
+        template block text
+      {{/dtab/selectable-header}}
+    `);
 
-  assert.equal(this.$().text().trim(), 'template block text');
+    assert.equal(find('*').textContent.trim(), 'template block text');
+  });
 });

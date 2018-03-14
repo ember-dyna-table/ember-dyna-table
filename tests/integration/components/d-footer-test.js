@@ -1,26 +1,29 @@
-import { moduleForComponent, test } from 'ember-qunit';
+import { find } from 'ember-native-dom-helpers';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import standardTable from '../../datasets/tables';
 
-moduleForComponent('d-footer', 'Integration | Component | z footer', {
-  integration: true
-});
+module('Integration | Component | z footer', function(hooks) {
+  setupRenderingTest(hooks);
 
-test('it renders', function (assert) {
+  test('it renders', async function(assert) {
 
-  // Set any properties with this.set('myProperty', 'value');
-  this.set('table', Object.assign({}, standardTable, {settings: {footer: true}}))
-  // Handle any actions with this.on('myAction', function(val) { ... });
+    // Set any properties with this.set('myProperty', 'value');
+    this.set('table', Object.assign({}, standardTable, {settings: {footer: true}}))
+    // Handle any actions with this.on('myAction', function(val) { ... });
 
-  this.render(hbs`{{d-footer d-table=table}}`);
+    await render(hbs`{{d-footer d-table=table}}`);
 
-  assert.equal(this.$('tfoot tr td').map((i,item)=>item.innerHTML).toArray().join(','), 'foo,bar,baz');
+    assert.equal(this.$('tfoot tr td').map((i,item)=>item.innerHTML).toArray().join(','), 'foo,bar,baz');
 
-  // Template block usage:
-  this.render(hbs`
-    {{#d-footer d-table=table}}
-      template block text
-    {{/d-footer}}`);
+    // Template block usage:
+    await render(hbs`
+      {{#d-footer d-table=table}}
+        template block text
+      {{/d-footer}}`);
 
-  assert.equal(this.$().text().trim(), 'template block text');
+    assert.equal(find('*').textContent.trim(), 'template block text');
+  });
 });

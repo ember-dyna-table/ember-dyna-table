@@ -1,44 +1,47 @@
-import { moduleForComponent, test } from 'ember-qunit';
+import { find } from 'ember-native-dom-helpers';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 import { standardTable } from '../../datasets/tables';
 
-moduleForComponent('d-tr', 'Integration | Component | z tr', {
-  integration: true
-});
+module('Integration | Component | z tr', function(hooks) {
+  setupRenderingTest(hooks);
 
-test('it renders', function(assert) {
+  test('it renders', async function(assert) {
 
-  // Set any properties with this.set('myProperty', 'value');
-  // Handle any actions with this.on('myAction', function(val) { ... });
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });
 
-  this.render(hbs`{{d-tr}}`);
+    await render(hbs`{{d-tr}}`);
 
-  assert.equal(this.$().text().trim(), '');
+    assert.equal(find('*').textContent.trim(), '');
 
-  // Template block usage:
-  this.render(hbs`
-    {{#d-tr}}
-      template block text
-    {{/d-tr}}
-  `);
+    // Template block usage:
+    await render(hbs`
+      {{#d-tr}}
+        template block text
+      {{/d-tr}}
+    `);
 
-  assert.equal(this.$().text().trim(), 'template block text');
-});
+    assert.equal(find('*').textContent.trim(), 'template block text');
+  });
 
 
-test('it renders custom tr component', function (assert) {
+  test('it renders custom tr component', async function(assert) {
 
-  // Set any properties with this.set('myProperty', 'value');
-  // Handle any actions with this.on('myAction', function(val) { ... });
-  this.set('table', Object.assign({}, standardTable, {
-    settings: {
-      rowComponent: 'custom-tr'
-    }
-  }));
+    // Set any properties with this.set('myProperty', 'value');
+    // Handle any actions with this.on('myAction', function(val) { ... });
+    this.set('table', Object.assign({}, standardTable, {
+      settings: {
+        rowComponent: 'custom-tr'
+      }
+    }));
 
-  // Template block usage:
-  this.render(hbs`
-        {{d-table table=table}}
-  `);
-  assert.equal(this.$('table tbody').text().replace(/[^\w|;|:]/g, ''), '0;123:1;456:2;789:');
+    // Template block usage:
+    await render(hbs`
+          {{d-table table=table}}
+    `);
+    assert.equal(find('table tbody').textContent.replace(/[^\w|;|:]/g, ''), '0;123:1;456:2;789:');
+  });
 });
