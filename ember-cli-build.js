@@ -4,7 +4,8 @@ const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 module.exports = function (defaults) {
   var app = new EmberAddon(defaults, {
     snippetPaths: ['tests/dummy/app/templates/snippets'],
-    snippetSearchPaths: ['tests/dummy/app/components/snippets']
+    snippetSearchPaths: ['tests/dummy/app/components/snippets'],
+    'ember-cli-babel': { includePolyfill: true }
   });
 
   /*
