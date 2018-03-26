@@ -28,7 +28,7 @@ module('Integration | Component | z header', function(hooks) {
   });
 
   test('it doesnt renders if settings header=false', async function(assert) {
-    this.set('table', Object.assign({}, standardTable, {settings: {header: false}}));
+    this.set('table', Object.assign({}, standardTable, { settings: { header: false } }));
     await render(hbs`{{d-header d-table=table}}`);
     assert.equal(find('*').textContent.trim(), '');
   });
@@ -42,7 +42,7 @@ module('Integration | Component | z header', function(hooks) {
   test('it renders header value from column.header.value', async function(assert) {
     this.set('table', Object.assign({}, standardTable, {
       columns: [
-        {key: 'foo'}, {key: 'bar', header: {value: 'BAR'}}, {key: 'baz'}
+        { key: 'foo' }, { key: 'bar', header: { value: 'BAR' } }, { key: 'baz' }
       ]
     }));
     await render(hbs`{{d-header d-table=table}}`);
@@ -55,7 +55,7 @@ module('Integration | Component | z header', function(hooks) {
     // Set any properties with this.set('myProperty', 'value');
     this.set('table', Object.assign(standardTable, {
       columns: [
-        {key: 'foo'}, {key: 'bar'}, {key: 'baz', header: {component: 'header-with-action'}}
+        { key: 'foo' }, { key: 'bar' }, { key: 'baz', header: { component: 'header-with-action' } }
       ]
     }));
 

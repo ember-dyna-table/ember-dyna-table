@@ -36,22 +36,22 @@ module('Integration | Component | z table', function(hooks) {
     assert.equal(findAll('table tbody tr').length, 3);
     assert.equal(findAll('table tbody td').length, 9);
     assert.equal(this.$('table tbody td').map((i, item)=>item.innerHTML).toArray().join(','), '1,2,3,4,5,6,7,8,9');
-  })
+  });
 
   test('it doesnt renders headers if settings have header = false', async function(assert) {
-    this.set('table', Object.assign({}, standardTable, {settings: {header: false}}));
+    this.set('table', Object.assign({}, standardTable, { settings: { header: false } }));
     await render(hbs`{{d-table table=table}}`);
 
     assert.equal(findAll('table thead').length, 0);
     assert.equal(findAll('table tbody tr').length, 3);
-  })
+  });
 
   test('it renders cells with custom component', async function(assert) {
     this.set('table', customRender);
     await render(hbs`{{d-table table=table}}`);
     assert.equal(findAll('table tbody tr').length, 3);
     assert.equal(this.$('table tbody td').map((i, item)=>item.innerHTML).toArray().join(','), '1,$2$$,3,4,$5$$,6,7,$8$$,9');
-  })
+  });
 
 
   test('it handles changing data', async function(assert) {
@@ -64,14 +64,14 @@ module('Integration | Component | z table', function(hooks) {
       data: changedStandardData
     }));
     assert.equal(this.$('table tbody td').map((i, item)=>item.innerHTML).toArray().join(','), '2,2,3,4,5,6,7,8,9');
-    run(function () {
+    run(function() {
       changedStandardData[0].set('foo', "3");
-    })
+    });
     return settled().then(() => {
       assert.equal(this.$('table tbody td').map((i, item)=>item.innerHTML).toArray().join(','), '3,2,3,4,5,6,7,8,9');
     });
 
-  })
+  });
 
 
   test('it handles changing column order', async function(assert) {
@@ -80,12 +80,12 @@ module('Integration | Component | z table', function(hooks) {
     assert.equal(this.$('table tbody td').map((i, item)=>item.innerHTML).toArray().join(','), '1,2,3,4,5,6,7,8,9');
 
     this.set('table.columns', [
-      {key: 'bar'}, {key: 'foo'}, {key: 'baz'}
-    ])
+      { key: 'bar' }, { key: 'foo' }, { key: 'baz' }
+    ]);
     return settled().then(() => {
       assert.equal(this.$('table tbody td').map((i, item)=>item.innerHTML).toArray().join(','), '2,1,3,5,4,6,8,7,9');
     });
-  })
+  });
 
   test('it renders nested data using nested key', async function(assert) {
 

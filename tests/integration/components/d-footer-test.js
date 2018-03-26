@@ -10,7 +10,7 @@ module('Integration | Component | z footer', function(hooks) {
   test('it renders', async function(assert) {
 
     // Set any properties with this.set('myProperty', 'value');
-    this.set('table', Object.assign({}, standardTable, {settings: {footer: true}}))
+    this.set('table', Object.assign({}, standardTable, { settings: { footer: true } }));
     // Handle any actions with this.on('myAction', function(val) { ... });
 
     await render(hbs`{{d-footer d-table=table}}`);

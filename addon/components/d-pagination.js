@@ -10,21 +10,21 @@ export default Component.extend({
   pageSize: alias('table.state.pagination.pageSize'),
   data: alias('table.data'),
 
-  hasNext: computed('paginated.[]', 'pageSize', function () {
+  hasNext: computed('paginated.[]', 'pageSize', function() {
     return this.get('pageSize') === this.get('paginated').length;
   }),
 
-  dataLength: computed('data.[]', function () {
+  dataLength: computed('data.[]', function() {
     return this.get('data.length');
   }),
 
-  lastPage: computed('data.[]', 'pageSize', function () {
+  lastPage: computed('data.[]', 'pageSize', function() {
     const total = this.get('data.length');
     const pageSize = this.get('pageSize');
     return Math.ceil(total / pageSize);
   }),
 
-  paginated: computed('data.[]', 'pageSize', 'currentPage', function () {
+  paginated: computed('data.[]', 'pageSize', 'currentPage', function() {
     let data = this.get('data');
     let pageSize = this.get('pageSize');
     let currentPage = this.get('currentPage') - 1;
@@ -34,12 +34,12 @@ export default Component.extend({
     return data.slice(start, end);
   }),
   actions: {
-    changePrevious: function () {
+    changePrevious: function() {
       if (this.get('currentPage') > 1) {
         this.decrementProperty('currentPage');
       }
     },
-    changeNext: function () {
+    changeNext: function() {
       const currentPage = this.get('currentPage');
       const lastPage = this.get('lastPage');
       if (currentPage < lastPage)
