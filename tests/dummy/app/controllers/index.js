@@ -1,6 +1,6 @@
-import {debug} from '@ember/debug';
+import { debug } from '@ember/debug';
 import Controller from '@ember/controller';
-import {computed} from '@ember/object';
+import { computed } from '@ember/object';
 
 export default Controller.extend({
   table: computed(() => ({
@@ -13,17 +13,17 @@ export default Controller.extend({
           component: 'sorting-header',
         },
       },
-      {key: 'bar'},
-      {key: 'baz', header: {component: 'header-with-action'}}
+      { key: 'bar' },
+      { key: 'baz', header: { component: 'header-with-action' } }
     ],
     data: [
-      {foo: '5', bar: '2', baz: '3'},
-      {foo: '4', bar: '5', baz: '6'},
-      {foo: '7', bar: '8', baz: '9'},
+      { foo: '5', bar: '2', baz: '3' },
+      { foo: '4', bar: '5', baz: '6' },
+      { foo: '7', bar: '8', baz: '9' },
     ]
   })),
   sorting: computed(() => ["foo:asc"]),
-  bigData: (function (length) {
+  bigData: (function(length) {
     let i = length;
     let result = [];
     while (i-- > 0) {
@@ -31,7 +31,7 @@ export default Controller.extend({
         foo: String(Math.floor(Math.random() * 100)),
         bar: String(Math.floor(Math.random() * 100)),
         baz: String(Math.floor(Math.random() * 100))
-      })
+      });
     }
     return result;
   })(100),

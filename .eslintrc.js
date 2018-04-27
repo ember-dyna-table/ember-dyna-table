@@ -16,6 +16,17 @@ module.exports = {
     browser: true
   },
   rules: {
+    indent: ['warn', 2],
+    "no-console": "off",
+    "no-debugger": "off",
+    "object-curly-spacing": ["error", "always"],
+    "space-before-function-paren": ["error", {
+      "anonymous": "never",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
+    "keyword-spacing": ["error"],
+    "semi": ["error", "always"]
   },
   overrides: [
     // node files
