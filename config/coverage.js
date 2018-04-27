@@ -1,5 +1,5 @@
 'use strict';
 
 module.exports = {
-  reporters: ['lcov']
+  reporters: ['lcov', 'text-summary']
 };
