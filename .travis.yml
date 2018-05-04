@@ -24,7 +24,7 @@ matrix:
   allow_failures:
   - env: EMBER_TRY_SCENARIO=ember-canary
 install:
-- npm install
+- yarn install
 script:
 - yarn lint:js
 - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO test --skip-cleanup

@@ -1,6 +1,6 @@
 {
   "name": "ember-dyna-table",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Extenible table component for dynamic tables.",
   "keywords": [
     "ember-addon"
@@ -15,11 +15,12 @@
   "scripts": {
     "build": "ember build",
     "start": "ember server",
-    "test": "ember try:each",
+    "test": "ember test",
     "lint:js": "eslint ./*.js addon addon-test-support app config lib server test-support tests",
     "coverage": "COVERAGE=true ember test;npm run replace",
     "replace": "node ./node_modules/replace-in-file/bin/cli.js '/SF:ember-dyna-table/g' 'SF:addon' ./coverage/lcov.info --isRegex",
-    "docs": "ember build -o docs/ -e docs"
+    "docs": "ember build -o docs/ -e docs",
+    "test:all": "ember try:each"
   },
   "dependencies": {
     "codacy-coverage": "^2.1.0",
@@ -34,7 +35,7 @@
     "broccoli-funnel": "^2.0.1",
     "ember-ajax": "^3.0.0",
     "ember-array-helper": "^3.0.0",
-    "ember-cli": "3.0.0",
+    "ember-cli": "~3.1.2",
     "ember-cli-code-coverage": "^0.4.2",
     "ember-cli-dependency-checker": "^2.1.0",
     "ember-cli-eslint": "^4.2.3",
@@ -50,7 +51,7 @@
     "ember-export-application-global": "^2.0.0",
     "ember-load-initializers": "^1.0.0",
     "ember-resolver": "^4.5.0",
-    "ember-source": "~3.0.0",
+    "ember-source": "~3.1.0",
     "ember-source-channel-url": "^1.0.1",
     "ember-try": "^0.2.23",
     "eslint-plugin-ember": "^5.0.3",

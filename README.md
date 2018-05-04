@@ -27,9 +27,18 @@ Note: You must install [Ember CLI](https://ember-cli.com/user-guide/) to use thi
 Then install this addon with just three commands:
 * `git clone git@github.com:zalando-incubator/ember-dressy-table.git` this repository
 * `cd ember-dyna-table`
-* `npm install`
+* `yarn install`
 
-#### Running
+### Linting
+
+* `yarn lint:js`
+* `yarn lint:js -- --fix`
+
+### Running tests
+
+* `ember test` – Runs the test suite on the current Ember version
+* `ember test --server` – Runs the test suite in "watch mode"
+* `ember try:each` – Runs the test suite against multiple Ember versions
 
 Simply follow these three steps:
 * `ember serve`
@@ -40,7 +49,7 @@ Simply follow these three steps:
 
 Again, three steps:
 
-* `npm test` (Runs `ember try:each` to test your addon against multiple Ember versions)
+* `yarn test` (Runs `ember try:each` to test your addon against multiple Ember versions)
 * `ember test`
 * `ember test --server`
 
