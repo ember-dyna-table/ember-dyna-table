@@ -1,6 +1,6 @@
 {
   "name": "ember-dyna-table",
-  "version": "0.0.3-0",
+  "version": "0.0.3-1",
   "description": "Extenible table component for dynamic tables.",
   "keywords": [
     "ember-addon"
