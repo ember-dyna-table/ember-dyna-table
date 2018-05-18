@@ -90,48 +90,61 @@ define('dummy/tests/app.lint-test', [], function () {
     assert.ok(true, 'routes/index.js should pass ESLint\n\n');
   });
 });
+define('dummy/tests/components/ember-ace', ['exports', 'ember-ace/test-support/components/ember-ace'], function (exports, _emberAce) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  Object.defineProperty(exports, 'default', {
+    enumerable: true,
+    get: function () {
+      return _emberAce.default;
+    }
+  });
+});
 define('dummy/tests/datasets/tables', ['exports'], function (exports) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  var standardTable = {
+  const standardTable = {
     settings: {},
     columns: [{ key: 'foo' }, { key: 'bar' }, { key: 'baz' }],
     data: [{ foo: '1', bar: '2', baz: '3' }, { foo: '4', bar: '5', baz: '6' }, { foo: '7', bar: '8', baz: '9' }]
   };
 
-  var customRender = {
+  const customRender = {
     settings: {},
     columns: [{ key: 'foo' }, { key: 'bar', component: 'custom-render' }, { key: 'baz' }],
     data: [{ foo: '1', bar: '2', baz: '3' }, { foo: '4', bar: '5', baz: '6' }, { foo: '7', bar: '8', baz: '9' }]
   };
 
-  var customHeaderRender = {
+  const customHeaderRender = {
     settings: {},
     columns: [{ key: 'foo' }, { key: 'bar', header: { component: 'custom-render' } }, { key: 'baz' }],
     data: [{ foo: '1', bar: '2', baz: '3' }, { foo: '4', bar: '5', baz: '6' }, { foo: '7', bar: '8', baz: '9' }]
   };
 
-  var sortableTable = {
+  const sortableTable = {
     settings: {},
     columns: [{ key: 'foo' }, { key: 'bar' }, { key: 'baz' }],
     data: [{ foo: '1', bar: '1', baz: '1' }, { foo: '1', bar: '2', baz: '2' }, { foo: '2', bar: '1', baz: '3' }]
   };
 
-  var nestedDataTable = {
+  const nestedDataTable = {
     settings: {},
     columns: [{ key: 'foo.one' }, { key: 'foo.two' }, { key: 'bar' }, { key: 'baz' }],
     data: [{ foo: { one: 'a', two: 'b' }, bar: '1', baz: '4' }, { foo: { one: 'c', two: 'd' }, bar: '2', baz: '5' }, { foo: { one: 'e', two: 'f' }, bar: '3', baz: '6' }]
   };
 
-  var paginationTable = {
+  const paginationTable = {
     settings: {},
     columns: [{ key: 'foo' }, { key: 'bar' }, { key: 'baz' }],
     data: function (length) {
-      var i = 0;
-      var result = [];
+      let i = 0;
+      let result = [];
       while (i++ < length) {
         result.push({
           foo: String(i),
@@ -162,6 +175,171 @@ define('dummy/tests/helpers/destroy-app', ['exports'], function (exports) {
     Ember.run(application, 'destroy');
   }
 });
+define('dummy/tests/helpers/ember-cli-clipboard', ['exports'], function (exports) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.triggerSuccess = triggerSuccess;
+  exports.triggerError = triggerError;
+
+  exports.default = function () {
+    Ember.Test.registerAsyncHelper('triggerCopySuccess', function (app, selector = '.copy-btn') {
+      fireComponentActionFromApp(app, selector, 'success');
+    });
+
+    Ember.Test.registerAsyncHelper('triggerCopyError', function (app, selector = '.copy-btn') {
+      fireComponentActionFromApp(app, selector, 'error');
+    });
+  };
+
+  /* === Integration Test Helpers === */
+
+  /**
+   * Fires `success` action for an instance of a copy-button component
+   * @function triggerSuccess
+   * @param {Object} context - integration test’s this context
+   * @param {String|Element} selector - selector of the copy-button instance
+   * @returns {Void}
+   */
+  function triggerSuccess(context, selector) {
+    fireComponentAction(context, selector, 'success');
+  }
+
+  /**
+   * Fires `error` action for an instance of a copy-button component
+   * @function triggerError
+   * @param {Object} context - integration test’s this context
+   * @param {String|Element} selector - selector of the copy-button instance
+   * @returns {Void}
+   */
+  function triggerError(context, selector) {
+    fireComponentAction(context, selector, 'error');
+  }
+
+  /* === Acceptance Test Helpers === */
+
+  /**
+   * Default export is a function that registers acceptance test helpers
+   */
+
+
+  /* === Private Functions === */
+
+  /**
+   * Fires named action for an instance of a copy-button component in an app
+   * @function fireComponentActionFromApp
+   * @param {Object} app - Ember application
+   * @param {String|Element} selector - selector of the copy-button instance
+   * @param {String} actionName - name of action
+   * @returns {Void}
+   */
+  function fireComponentActionFromApp(app, selector, actionName) {
+    fireComponentAction({
+      container: app.__container__,
+      $: app.$
+    }, selector, actionName);
+  }
+
+  /**
+   * Fires named action for an instance of a copy-button component
+   * @function fireComponentAction
+   * @param {Object} context - test context
+   * @param {String|Element} selector - selector of the copy-button instance
+   * @param {String} actionName - name of action
+   * @returns {Void}
+   */
+  function fireComponentAction(context, selector, actionName) {
+    let component = getComponentBySelector(context, selector);
+    fireActionByName(component, actionName);
+  }
+
+  /**
+   * Fetches component reference for a given context and selector
+   * @function getComponentBySelector
+   * @param {Object} context - test context
+   * @param {String|Element} selector - selector of the copy-button instance
+   * @returns {Object} component object
+   */
+  function getComponentBySelector(context, selector = '.copy-btn') {
+    let emberId = context.$(selector).attr('id');
+    return context.container.lookup('-view-registry:main')[emberId];
+  }
+
+  /**
+   * Fires a component's action given an action name
+   * @function fireActionByName
+   * @param {Ember.Component} component - component to fire action from
+   * @param {String} actionName - name of action
+   * @returns {Void}
+   */
+  function fireActionByName(component, actionName) {
+    let action = component[actionName];
+
+    Ember.run(() => {
+      if (typeof action === 'string') {
+        component.sendAction(action);
+      } else {
+        action();
+      }
+    });
+  }
+});
+define('dummy/tests/helpers/ember-keyboard/register-test-helpers', ['exports', 'ember-keyboard', 'ember-keyboard/fixtures/modifiers-array', 'ember-keyboard/fixtures/mouse-buttons-array', 'ember-keyboard/utils/get-cmd-key'], function (exports, _emberKeyboard, _modifiersArray, _mouseButtonsArray, _getCmdKey) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  exports.default = function () {
+    Ember.Test.registerAsyncHelper('keyDown', function (app, attributes, element) {
+      return keyEvent(app, attributes, 'keydown', element);
+    });
+
+    Ember.Test.registerAsyncHelper('keyUp', function (app, attributes, element) {
+      return keyEvent(app, attributes, 'keyup', element);
+    });
+
+    Ember.Test.registerAsyncHelper('keyPress', function (app, attributes, element) {
+      return keyEvent(app, attributes, 'keypress', element);
+    });
+
+    Ember.Test.registerAsyncHelper('mouseDown', function (app, attributes, element) {
+      return keyEvent(app, attributes, 'mousedown', element);
+    });
+
+    Ember.Test.registerAsyncHelper('mouseUp', function (app, attributes, element) {
+      return keyEvent(app, attributes, 'mouseup', element);
+    });
+
+    Ember.Test.registerAsyncHelper('touchStart', function (app, attributes, element) {
+      return keyEvent(app, attributes, 'touchstart', element);
+    });
+
+    Ember.Test.registerAsyncHelper('touchEnd', function (app, attributes, element) {
+      return keyEvent(app, attributes, 'touchend', element);
+    });
+  };
+
+  const keyEvent = function keyEvent(app, attributes, type, element) {
+    const event = (attributes || '').split('+').reduce((event, attribute) => {
+      if (_modifiersArray.default.indexOf(attribute) > -1) {
+        attribute = attribute === 'cmd' ? (0, _getCmdKey.default)() : attribute;
+        event[`${attribute}Key`] = true;
+      } else if (_mouseButtonsArray.default.indexOf(attribute) > -1) {
+        event.button = (0, _emberKeyboard.getMouseCode)(attribute);
+      } else {
+        event.keyCode = (0, _emberKeyboard.getKeyCode)(attribute);
+      }
+
+      return event;
+    }, {});
+
+    return app.testHelpers.triggerEvent(element || document.body, type, event);
+  };
+});
 define('dummy/tests/helpers/module-for-acceptance', ['exports', 'qunit', 'dummy/tests/helpers/start-app', 'dummy/tests/helpers/destroy-app'], function (exports, _qunit, _startApp, _destroyApp) {
   'use strict';
 
@@ -169,24 +347,19 @@ define('dummy/tests/helpers/module-for-acceptance', ['exports', 'qunit', 'dummy/
     value: true
   });
 
-  exports.default = function (name) {
-    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
+  exports.default = function (name, options = {}) {
     (0, _qunit.module)(name, {
-      beforeEach: function beforeEach() {
+      beforeEach() {
         this.application = (0, _startApp.default)();
 
         if (options.beforeEach) {
           return options.beforeEach.apply(this, arguments);
         }
       },
-      afterEach: function afterEach() {
-        var _this = this;
 
-        var afterEach = options.afterEach && options.afterEach.apply(this, arguments);
-        return Ember.RSVP.Promise.resolve(afterEach).then(function () {
-          return (0, _destroyApp.default)(_this.application);
-        });
+      afterEach() {
+        let afterEach = options.afterEach && options.afterEach.apply(this, arguments);
+        return Ember.RSVP.Promise.resolve(afterEach).then(() => (0, _destroyApp.default)(this.application));
       }
     });
   };
@@ -199,7 +372,7 @@ define('dummy/tests/helpers/resolver', ['exports', 'dummy/resolver', 'dummy/conf
   });
 
 
-  var resolver = _resolver.default.create();
+  const resolver = _resolver.default.create();
 
   resolver.namespace = {
     modulePrefix: _environment.default.modulePrefix,
@@ -216,747 +389,692 @@ define('dummy/tests/helpers/start-app', ['exports', 'dummy/app', 'dummy/config/e
   });
   exports.default = startApp;
   function startApp(attrs) {
-    var attributes = Ember.merge({}, _environment.default.APP);
+    let attributes = Ember.merge({}, _environment.default.APP);
     attributes = Ember.merge(attributes, attrs); // use defaults, but you can override;
 
-    return Ember.run(function () {
-      var application = _app.default.create(attributes);
+    return Ember.run(() => {
+      let application = _app.default.create(attributes);
       application.setupForTesting();
       application.injectTestHelpers();
       return application;
     });
   }
 });
-define('dummy/tests/integration/components/d-filter-test', ['ember-qunit'], function (_emberQunit) {
+define('dummy/tests/integration/components/d-filter-test', ['qunit', 'ember-qunit', '@ember/test-helpers'], function (_qunit, _emberQunit, _testHelpers) {
   'use strict';
 
-  (0, _emberQunit.moduleForComponent)('d-filter', 'Integration | Component | z filter', {
-    integration: true
-  });
+  (0, _qunit.module)('Integration | Component | z filter', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
 
-  (0, _emberQunit.test)('it renders', function (assert) {
+    (0, _qunit.test)('it renders', async function (assert) {
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
 
-    this.render(Ember.HTMLBars.template({
-      "id": "YhmSRW+J",
-      "block": "{\"symbols\":[],\"statements\":[[1,[18,\"d-filter\"],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "apQliUZu",
+        "block": "{\"symbols\":[],\"statements\":[[1,[20,\"d-filter\"],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
 
-    assert.equal(this.$().text().trim(), '');
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), '');
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "GjTP+ajT",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-filter\",null,null,{\"statements\":[[0,\"      template block text\\n\"]],\"parameters\":[]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "QCCqSQad",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-filter\",null,null,{\"statements\":[[0,\"        template block text\\n\"]],\"parameters\":[]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
 
-    assert.equal(this.$().text().trim(), 'template block text');
-  });
-});
-define('dummy/tests/integration/components/d-footer-test', ['ember-qunit', 'dummy/tests/datasets/tables'], function (_emberQunit, _tables) {
-  'use strict';
-
-  (0, _emberQunit.moduleForComponent)('d-footer', 'Integration | Component | z footer', {
-    integration: true
-  });
-
-  (0, _emberQunit.test)('it renders', function (assert) {
-
-    // Set any properties with this.set('myProperty', 'value');
-    this.set('table', Object.assign({}, _tables.default, { settings: { footer: true } }));
-    // Handle any actions with this.on('myAction', function(val) { ... });
-
-    this.render(Ember.HTMLBars.template({
-      "id": "51CYzE3T",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-footer\",null,[[\"d-table\"],[[20,[\"table\"]]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    assert.equal(this.$('tfoot tr td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), 'foo,bar,baz');
-
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "S3N6pxAa",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-footer\",null,[[\"d-table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"      template block text\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    assert.equal(this.$().text().trim(), 'template block text');
-  });
-});
-define('dummy/tests/integration/components/d-header-test', ['ember-qunit', 'ember-test-helpers/wait', 'dummy/tests/datasets/tables'], function (_emberQunit, _wait, _tables) {
-  'use strict';
-
-  (0, _emberQunit.moduleForComponent)('d-header', 'Integration | Component | z header', {
-    integration: true
-  });
-
-  (0, _emberQunit.test)('it renders', function (assert) {
-
-    // Set any properties with this.set('myProperty', 'value');
-    this.set('table', Object.assign({}, _tables.standardTable));
-    // Handle any actions with this.on('myAction', function(val) { ... });
-
-    this.render(Ember.HTMLBars.template({
-      "id": "4kq+pvwI",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-header\",null,[[\"d-table\"],[[20,[\"table\"]]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    assert.equal(this.$('thead tr td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(',').trim(), 'foo,bar,baz');
-
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "g07Ecr38",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-header\",null,[[\"d-table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"      template block text\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    assert.equal(this.$().text().trim(), 'template block text');
-  });
-
-  (0, _emberQunit.test)('it doesnt renders if settings header=false', function (assert) {
-    this.set('table', Object.assign({}, _tables.standardTable, { settings: { header: false } }));
-    this.render(Ember.HTMLBars.template({
-      "id": "4kq+pvwI",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-header\",null,[[\"d-table\"],[[20,[\"table\"]]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$().text().trim(), '');
-  });
-
-  (0, _emberQunit.test)('it renders custom header component', function (assert) {
-    this.set('table', _tables.customHeaderRender);
-    this.render(Ember.HTMLBars.template({
-      "id": "4kq+pvwI",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-header\",null,[[\"d-table\"],[[20,[\"table\"]]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('thead tr td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), 'foo,$bar$$,baz');
-  });
-
-  (0, _emberQunit.test)('it renders header value from column.header.value', function (assert) {
-    this.set('table', Object.assign({}, _tables.standardTable, {
-      columns: [{ key: 'foo' }, { key: 'bar', header: { value: 'BAR' } }, { key: 'baz' }]
-    }));
-    this.render(Ember.HTMLBars.template({
-      "id": "4kq+pvwI",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-header\",null,[[\"d-table\"],[[20,[\"table\"]]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('thead tr td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), 'foo,BAR,baz');
-  });
-
-  (0, _emberQunit.test)('it sends action from header component to header', function (assert) {
-    var _this = this;
-
-    var counter = 0;
-
-    // Set any properties with this.set('myProperty', 'value');
-    this.set('table', Object.assign(_tables.standardTable, {
-      columns: [{ key: 'foo' }, { key: 'bar' }, { key: 'baz', header: { component: 'header-with-action' } }]
-    }));
-
-    this.set('headerAction', function () {
-      counter++;
-    });
-
-    this.render(Ember.HTMLBars.template({
-      "id": "F0UZVv3m",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-header\",null,[[\"d-table\",\"someAction\"],[[20,[\"table\"]],[25,\"action\",[[19,0,[]],[20,[\"headerAction\"]]],null]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    Ember.run(function () {
-      return _this.$('td:contains("baz")').click();
-    });
-
-    return (0, _wait.default)().then(function () {
-      assert.equal(counter, 1);
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), 'template block text');
     });
   });
 });
-define('dummy/tests/integration/components/d-pagination-test', ['ember-qunit', 'ember-test-helpers/wait', 'dummy/tests/datasets/tables'], function (_emberQunit, _wait, _tables) {
+define('dummy/tests/integration/components/d-footer-test', ['qunit', 'ember-qunit', '@ember/test-helpers', 'dummy/tests/datasets/tables'], function (_qunit, _emberQunit, _testHelpers, _tables) {
   'use strict';
 
-  (0, _emberQunit.moduleForComponent)('d-pagination', 'Integration | Component | z pagination', {
-    integration: true
+  (0, _qunit.module)('Integration | Component | z footer', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
+
+    (0, _qunit.test)('it renders', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      this.set('table', Object.assign({}, _tables.default, { settings: { footer: true } }));
+      // Handle any actions with this.on('myAction', function(val) { ... });
+
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "IhuzsCPO",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-footer\",null,[[\"d-table\"],[[22,[\"table\"]]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal(this.$('tfoot tr td').map((i, item) => item.innerHTML).toArray().join(','), 'foo,bar,baz');
+
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "W55f31Yt",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-footer\",null,[[\"d-table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"        template block text\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), 'template block text');
+    });
   });
+});
+define('dummy/tests/integration/components/d-header-test', ['qunit', 'ember-qunit', '@ember/test-helpers', 'dummy/tests/datasets/tables'], function (_qunit, _emberQunit, _testHelpers, _tables) {
+  'use strict';
 
-  (0, _emberQunit.test)('it renders', function (assert) {
+  (0, _qunit.module)('Integration | Component | z header', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
+    (0, _qunit.test)('it renders', async function (assert) {
 
-    this.render(Ember.HTMLBars.template({
-      "id": "jCc6znvb",
-      "block": "{\"symbols\":[],\"statements\":[[1,[18,\"d-pagination\"],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
+      // Set any properties with this.set('myProperty', 'value');
+      this.set('table', Object.assign({}, _tables.standardTable));
+      // Handle any actions with this.on('myAction', function(val) { ... });
 
-    assert.equal(this.$().text().trim(), '');
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "mLb6vIO4",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-header\",null,[[\"d-table\"],[[22,[\"table\"]]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "nxXHlzXE",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,null,{\"statements\":[[0,\"      template block text\\n\"]],\"parameters\":[]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
+      assert.equal(this.$('thead tr td').map((i, item) => item.innerHTML).toArray().join(',').trim(), 'foo,bar,baz');
 
-    assert.equal(this.$().text().trim(), 'template block text');
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "mLcKlewu",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-header\",null,[[\"d-table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"        template block text\\n\"]],\"parameters\":[]},null]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), 'template block text');
+    });
+
+    (0, _qunit.test)('it doesnt renders if settings header=false', async function (assert) {
+      this.set('table', Object.assign({}, _tables.standardTable, { settings: { header: false } }));
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "mLb6vIO4",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-header\",null,[[\"d-table\"],[[22,[\"table\"]]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), '');
+    });
+
+    (0, _qunit.test)('it renders custom header component', async function (assert) {
+      this.set('table', _tables.customHeaderRender);
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "mLb6vIO4",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-header\",null,[[\"d-table\"],[[22,[\"table\"]]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('thead tr td').map((i, item) => item.innerHTML).toArray().join(','), 'foo,$bar$$,baz');
+    });
+
+    (0, _qunit.test)('it renders header value from column.header.value', async function (assert) {
+      this.set('table', Object.assign({}, _tables.standardTable, {
+        columns: [{ key: 'foo' }, { key: 'bar', header: { value: 'BAR' } }, { key: 'baz' }]
+      }));
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "mLb6vIO4",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-header\",null,[[\"d-table\"],[[22,[\"table\"]]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('thead tr td').map((i, item) => item.innerHTML).toArray().join(','), 'foo,BAR,baz');
+    });
+
+    (0, _qunit.test)('it sends action from header component to header', async function (assert) {
+      let counter = 0;
+
+      // Set any properties with this.set('myProperty', 'value');
+      this.set('table', Object.assign(_tables.standardTable, {
+        columns: [{ key: 'foo' }, { key: 'bar' }, { key: 'baz', header: { component: 'header-with-action' } }]
+      }));
+
+      this.set('headerAction', () => {
+        counter++;
+      });
+
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "8m/2j6nt",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-header\",null,[[\"d-table\",\"someAction\"],[[22,[\"table\"]],[26,\"action\",[[21,0,[]],[22,[\"headerAction\"]]],null]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      Ember.run(() => this.$('td:contains("baz")').click());
+
+      return (0, _testHelpers.settled)().then(() => {
+        assert.equal(counter, 1);
+      });
+    });
   });
+});
+define('dummy/tests/integration/components/d-pagination-test', ['qunit', 'ember-qunit', '@ember/test-helpers', 'dummy/tests/datasets/tables'], function (_qunit, _emberQunit, _testHelpers, _tables) {
+  'use strict';
 
-  (0, _emberQunit.test)('it paginates data', function (assert) {
+  (0, _qunit.module)('Integration | Component | z pagination', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.paginationTable, {
-      state: {
-        pagination: {
-          pageSize: 5,
-          currentPage: 1
+    (0, _qunit.test)('it renders', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "AhFwDVrB",
+        "block": "{\"symbols\":[],\"statements\":[[1,[20,\"d-pagination\"],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), '');
+
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "70/HnSQv",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,null,{\"statements\":[[0,\"        template block text\\n\"]],\"parameters\":[]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), 'template block text');
+    });
+
+    (0, _qunit.test)('it paginates data', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.paginationTable, {
+        state: {
+          pagination: {
+            pageSize: 5,
+            currentPage: 1
+          }
         }
-      }
-    }));
+      }));
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "fCmNEk71",
-      "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"            \"],[1,[25,\"d-table\",null,[[\"table\"],[[19,1,[\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '1,1,1,2,2,2,3,3,3,4,4,4,5,5,5');
-  });
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "fC0JJ2x4",
+        "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"              \"],[1,[26,\"d-table\",null,[[\"table\"],[[21,1,[\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '1,1,1,2,2,2,3,3,3,4,4,4,5,5,5');
+    });
 
-  (0, _emberQunit.test)('it shows second page correctly', function (assert) {
+    (0, _qunit.test)('it shows second page correctly', async function (assert) {
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.paginationTable, {
-      state: {
-        pagination: {
-          pageSize: 5,
-          currentPage: 2
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.paginationTable, {
+        state: {
+          pagination: {
+            pageSize: 5,
+            currentPage: 2
+          }
         }
-      }
-    }));
+      }));
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "fCmNEk71",
-      "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"            \"],[1,[25,\"d-table\",null,[[\"table\"],[[19,1,[\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '6,6,6,7,7,7,8,8,8,9,9,9,10,10,10');
-  });
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "fC0JJ2x4",
+        "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"              \"],[1,[26,\"d-table\",null,[[\"table\"],[[21,1,[\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '6,6,6,7,7,7,8,8,8,9,9,9,10,10,10');
+    });
 
-  (0, _emberQunit.test)('it goes to next page', function (assert) {
+    (0, _qunit.test)('it goes to next page', async function (assert) {
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.paginationTable, {
-      state: {
-        pagination: {
-          pageSize: 5,
-          currentPage: 1
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.paginationTable, {
+        state: {
+          pagination: {
+            pageSize: 5,
+            currentPage: 1
+          }
         }
-      }
-    }));
+      }));
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "0EbINykW",
-      "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"            \"],[1,[25,\"d-table\",null,[[\"table\"],[[19,1,[\"table\"]]]]],false],[0,\"\\n            \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"id\",\"change-next\"],[3,\"action\",[[19,0,[]],[19,1,[\"pagination\",\"changeNext\"]]]],[7],[0,\">\"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    this.$('#change-next').click();
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '6,6,6,7,7,7,8,8,8,9,9,9,10,10,10');
-  });
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "Padp9Q6h",
+        "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"              \"],[1,[26,\"d-table\",null,[[\"table\"],[[21,1,[\"table\"]]]]],false],[0,\"\\n              \"],[6,\"a\"],[10,\"href\",\"#\"],[10,\"id\",\"change-next\"],[3,\"action\",[[21,0,[]],[21,1,[\"pagination\",\"changeNext\"]]]],[8],[0,\">\"],[9],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      await (0, _testHelpers.click)('#change-next');
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '6,6,6,7,7,7,8,8,8,9,9,9,10,10,10');
+    });
 
-  (0, _emberQunit.test)('it goes to previous page', function (assert) {
+    (0, _qunit.test)('it goes to previous page', async function (assert) {
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.paginationTable, {
-      state: {
-        pagination: {
-          pageSize: 5,
-          currentPage: 2
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.paginationTable, {
+        state: {
+          pagination: {
+            pageSize: 5,
+            currentPage: 2
+          }
         }
-      }
-    }));
+      }));
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "yHsjxA5B",
-      "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"            \"],[1,[25,\"d-table\",null,[[\"table\"],[[19,1,[\"table\"]]]]],false],[0,\"\\n            \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"id\",\"change\"],[3,\"action\",[[19,0,[]],[19,1,[\"pagination\",\"changePrevious\"]]]],[7],[0,\">\"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    this.$('#change').click();
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '1,1,1,2,2,2,3,3,3,4,4,4,5,5,5');
-  });
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "D7Zn7aPL",
+        "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"              \"],[1,[26,\"d-table\",null,[[\"table\"],[[21,1,[\"table\"]]]]],false],[0,\"\\n              \"],[6,\"a\"],[10,\"href\",\"#\"],[10,\"id\",\"change\"],[3,\"action\",[[21,0,[]],[21,1,[\"pagination\",\"changePrevious\"]]]],[8],[0,\">\"],[9],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      await (0, _testHelpers.click)('#change');
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '1,1,1,2,2,2,3,3,3,4,4,4,5,5,5');
+    });
 
-  (0, _emberQunit.test)('it changes data when pageSize is changed', function (assert) {
-    var _this = this;
+    (0, _qunit.test)('it changes data when pageSize is changed', async function (assert) {
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.paginationTable, {
-      state: {
-        pagination: {
-          pageSize: 5,
-          currentPage: 1
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.paginationTable, {
+        state: {
+          pagination: {
+            pageSize: 5,
+            currentPage: 1
+          }
         }
-      }
-    }));
+      }));
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "yHsjxA5B",
-      "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"            \"],[1,[25,\"d-table\",null,[[\"table\"],[[19,1,[\"table\"]]]]],false],[0,\"\\n            \"],[6,\"a\"],[9,\"href\",\"#\"],[9,\"id\",\"change\"],[3,\"action\",[[19,0,[]],[19,1,[\"pagination\",\"changePrevious\"]]]],[7],[0,\">\"],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '1,1,1,2,2,2,3,3,3,4,4,4,5,5,5');
-    this.set('table.state.pagination.pageSize', 2);
-    return (0, _wait.default)().then(function () {
-      assert.equal(_this.$('table tbody td').map(function (i, item) {
-        return item.innerHTML;
-      }).toArray().join(','), '1,1,1,2,2,2');
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "D7Zn7aPL",
+        "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"              \"],[1,[26,\"d-table\",null,[[\"table\"],[[21,1,[\"table\"]]]]],false],[0,\"\\n              \"],[6,\"a\"],[10,\"href\",\"#\"],[10,\"id\",\"change\"],[3,\"action\",[[21,0,[]],[21,1,[\"pagination\",\"changePrevious\"]]]],[8],[0,\">\"],[9],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '1,1,1,2,2,2,3,3,3,4,4,4,5,5,5');
+      this.set('table.state.pagination.pageSize', 2);
+      return (0, _testHelpers.settled)().then(() => {
+        assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '1,1,1,2,2,2');
+      });
+    });
+
+    (0, _qunit.test)('it calculates lastPage right for length 100 and pageSize 33', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.paginationTable, {
+        state: {
+          pagination: {
+            pageSize: 33,
+            currentPage: 1
+          }
+        }
+      }));
+
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "7yXLuMyN",
+        "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"              \"],[1,[26,\"d-table\",null,[[\"table\"],[[21,1,[\"table\"]]]]],false],[0,\"\\n              \"],[6,\"div\"],[10,\"id\",\"last-page\"],[8],[1,[21,1,[\"pagination\",\"lastPage\"]],false],[9],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal((0, _testHelpers.find)('#last-page').innerHTML, '4');
+    });
+
+    (0, _qunit.test)('it calculates lastPage right for length 100 and pageSize 2', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.paginationTable, {
+        state: {
+          pagination: {
+            pageSize: 2,
+            currentPage: 1
+          }
+        }
+      }));
+
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "7yXLuMyN",
+        "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"              \"],[1,[26,\"d-table\",null,[[\"table\"],[[21,1,[\"table\"]]]]],false],[0,\"\\n              \"],[6,\"div\"],[10,\"id\",\"last-page\"],[8],[1,[21,1,[\"pagination\",\"lastPage\"]],false],[9],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal((0, _testHelpers.find)('#last-page').innerHTML, '50');
     });
   });
+});
+define('dummy/tests/integration/components/d-sorter-test', ['qunit', 'ember-qunit', '@ember/test-helpers', 'dummy/tests/datasets/tables'], function (_qunit, _emberQunit, _testHelpers, _tables) {
+  'use strict';
 
-  (0, _emberQunit.test)('it calculates lastPage right for length 100 and pageSize 33', function (assert) {
+  (0, _qunit.module)('Integration | Component | z sorter', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.paginationTable, {
-      state: {
-        pagination: {
-          pageSize: 33,
-          currentPage: 1
+    (0, _qunit.test)('it renders', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "rdiqe3Mc",
+        "block": "{\"symbols\":[],\"statements\":[[1,[20,\"d-sorter\"],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), '');
+
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "3Gbv9k80",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-sorter\",null,null,{\"statements\":[[0,\"        template block text\\n\"]],\"parameters\":[]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), 'template block text');
+    });
+
+    (0, _qunit.test)('it sorts data using 1 key', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.sortableTable, {
+        state: {
+          sorting: ['foo:desc']
         }
-      }
-    }));
+      }));
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "JismTswC",
-      "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"            \"],[1,[25,\"d-table\",null,[[\"table\"],[[19,1,[\"table\"]]]]],false],[0,\"\\n            \"],[6,\"div\"],[9,\"id\",\"last-page\"],[7],[1,[19,1,[\"pagination\",\"lastPage\"]],false],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('#last-page').html(), '4');
-  });
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "tmSi8fHM",
+        "block": "{\"symbols\":[\"s\"],\"statements\":[[0,\"\\n\"],[4,\"d-sorter\",null,[[\"table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"              \"],[1,[26,\"d-table\",null,[[\"table\"],[[21,1,[\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '2,1,3,1,1,1,1,2,2');
+    });
 
-  (0, _emberQunit.test)('it calculates lastPage right for length 100 and pageSize 2', function (assert) {
+    (0, _qunit.test)('it sorts data using 2 keys', async function (assert) {
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.paginationTable, {
-      state: {
-        pagination: {
-          pageSize: 2,
-          currentPage: 1
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.sortableTable, {
+        state: {
+          sorting: ['foo:desc', 'bar:desc']
         }
-      }
-    }));
+      }));
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "JismTswC",
-      "block": "{\"symbols\":[\"p\"],\"statements\":[[0,\"\\n\"],[4,\"d-pagination\",null,[[\"table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"            \"],[1,[25,\"d-table\",null,[[\"table\"],[[19,1,[\"table\"]]]]],false],[0,\"\\n            \"],[6,\"div\"],[9,\"id\",\"last-page\"],[7],[1,[19,1,[\"pagination\",\"lastPage\"]],false],[8],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('#last-page').html(), '50');
-  });
-});
-define('dummy/tests/integration/components/d-sorter-test', ['ember-qunit', 'dummy/tests/datasets/tables'], function (_emberQunit, _tables) {
-  'use strict';
-
-  (0, _emberQunit.moduleForComponent)('d-sorter', 'Integration | Component | z sorter', {
-    integration: true
-  });
-
-  (0, _emberQunit.test)('it renders', function (assert) {
-
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-
-    this.render(Ember.HTMLBars.template({
-      "id": "SloF/6Sb",
-      "block": "{\"symbols\":[],\"statements\":[[1,[18,\"d-sorter\"],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    assert.equal(this.$().text().trim(), '');
-
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "Kd+Onuec",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-sorter\",null,null,{\"statements\":[[0,\"      template block text\\n\"]],\"parameters\":[]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    assert.equal(this.$().text().trim(), 'template block text');
-  });
-
-  (0, _emberQunit.test)('it sorts data using 1 key', function (assert) {
-
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.sortableTable, {
-      state: {
-        sorting: ['foo:desc']
-      }
-    }));
-
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "k3xufa2K",
-      "block": "{\"symbols\":[\"s\"],\"statements\":[[0,\"\\n\"],[4,\"d-sorter\",null,[[\"table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"            \"],[1,[25,\"d-table\",null,[[\"table\"],[[19,1,[\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '2,1,3,1,1,1,1,2,2');
-  });
-
-  (0, _emberQunit.test)('it sorts data using 2 keys', function (assert) {
-
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.sortableTable, {
-      state: {
-        sorting: ['foo:desc', 'bar:desc']
-      }
-    }));
-
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "k3xufa2K",
-      "block": "{\"symbols\":[\"s\"],\"statements\":[[0,\"\\n\"],[4,\"d-sorter\",null,[[\"table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"            \"],[1,[25,\"d-table\",null,[[\"table\"],[[19,1,[\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '2,1,3,1,2,2,1,1,1');
-  });
-
-  (0, _emberQunit.test)('it sorts nested data using nested key', function (assert) {
-
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.nestedDataTable, {
-      state: {
-        sorting: ['foo.one:desc']
-      }
-    }));
-
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "k3xufa2K",
-      "block": "{\"symbols\":[\"s\"],\"statements\":[[0,\"\\n\"],[4,\"d-sorter\",null,[[\"table\"],[[20,[\"table\"]]]],{\"statements\":[[0,\"            \"],[1,[25,\"d-table\",null,[[\"table\"],[[19,1,[\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), 'e,f,3,6,c,d,2,5,a,b,1,4');
-  });
-});
-define('dummy/tests/integration/components/d-table-test', ['ember-qunit', 'ember-test-helpers/wait', 'dummy/tests/datasets/tables'], function (_emberQunit, _wait, _tables) {
-  'use strict';
-
-  (0, _emberQunit.moduleForComponent)('d-table', 'Integration | Component | z table', {
-    integration: true
-  });
-
-  (0, _emberQunit.test)('it renders', function (assert) {
-
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-
-    this.render(Ember.HTMLBars.template({
-      "id": "LOKRnWz0",
-      "block": "{\"symbols\":[],\"statements\":[[1,[18,\"d-table\"],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    assert.equal(this.$().text().trim(), '');
-  });
-
-  (0, _emberQunit.test)('it renders basic data by default', function (assert) {
-    this.set('table', _tables.standardTable);
-    this.render(Ember.HTMLBars.template({
-      "id": "VnoivbzO",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-table\",null,[[\"table\"],[[20,[\"table\"]]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    // header
-    assert.equal(this.$('table thead tr td').map(function (i, item) {
-      return item.innerHTML.trim();
-    }).toArray().join(','), 'foo,bar,baz');
-
-    //body
-    assert.equal(this.$('table tbody tr').length, 3);
-    assert.equal(this.$('table tbody td').length, 9);
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '1,2,3,4,5,6,7,8,9');
-  });
-
-  (0, _emberQunit.test)('it doesnt renders headers if settings have header = false', function (assert) {
-    this.set('table', Object.assign({}, _tables.standardTable, { settings: { header: false } }));
-    this.render(Ember.HTMLBars.template({
-      "id": "VnoivbzO",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-table\",null,[[\"table\"],[[20,[\"table\"]]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    assert.equal(this.$('table thead').length, 0);
-    assert.equal(this.$('table tbody tr').length, 3);
-  });
-
-  (0, _emberQunit.test)('it renders cells with custom component', function (assert) {
-    this.set('table', _tables.customRender);
-    this.render(Ember.HTMLBars.template({
-      "id": "VnoivbzO",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-table\",null,[[\"table\"],[[20,[\"table\"]]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody tr').length, 3);
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '1,$2$$,3,4,$5$$,6,7,$8$$,9');
-  });
-
-  (0, _emberQunit.test)('it handles changing data', function (assert) {
-    var _this = this;
-
-    var changedStandardData = _tables.standardTable.data.map(function (i) {
-      return new Ember.Object(i);
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "tmSi8fHM",
+        "block": "{\"symbols\":[\"s\"],\"statements\":[[0,\"\\n\"],[4,\"d-sorter\",null,[[\"table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"              \"],[1,[26,\"d-table\",null,[[\"table\"],[[21,1,[\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '2,1,3,1,2,2,1,1,1');
     });
-    changedStandardData[0].set('foo', "2");
-    this.set('table', _tables.standardTable);
-    this.render(Ember.HTMLBars.template({
-      "id": "VnoivbzO",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-table\",null,[[\"table\"],[[20,[\"table\"]]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '1,2,3,4,5,6,7,8,9');
-    this.set('table', Object.assign({}, _tables.standardTable, {
-      data: changedStandardData
-    }));
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '2,2,3,4,5,6,7,8,9');
-    Ember.run(function () {
-      changedStandardData[0].set('foo', "3");
-    });
-    return (0, _wait.default)().then(function () {
-      assert.equal(_this.$('table tbody td').map(function (i, item) {
-        return item.innerHTML;
-      }).toArray().join(','), '3,2,3,4,5,6,7,8,9');
+
+    (0, _qunit.test)('it sorts nested data using nested key', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.nestedDataTable, {
+        state: {
+          sorting: ['foo.one:desc']
+        }
+      }));
+
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "tmSi8fHM",
+        "block": "{\"symbols\":[\"s\"],\"statements\":[[0,\"\\n\"],[4,\"d-sorter\",null,[[\"table\"],[[22,[\"table\"]]]],{\"statements\":[[0,\"              \"],[1,[26,\"d-table\",null,[[\"table\"],[[21,1,[\"table\"]]]]],false],[0,\"\\n\"]],\"parameters\":[1]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), 'e,f,3,6,c,d,2,5,a,b,1,4');
     });
   });
+});
+define('dummy/tests/integration/components/d-table-test', ['qunit', 'ember-qunit', '@ember/test-helpers', 'dummy/tests/datasets/tables'], function (_qunit, _emberQunit, _testHelpers, _tables) {
+  'use strict';
 
-  (0, _emberQunit.test)('it handles changing column order', function (assert) {
-    var _this2 = this;
+  (0, _qunit.module)('Integration | Component | z table', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
 
-    this.set('table', new Ember.Object(_tables.standardTable));
-    this.render(Ember.HTMLBars.template({
-      "id": "VnoivbzO",
-      "block": "{\"symbols\":[],\"statements\":[[1,[25,\"d-table\",null,[[\"table\"],[[20,[\"table\"]]]]],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), '1,2,3,4,5,6,7,8,9');
+    (0, _qunit.test)('it renders', async function (assert) {
 
-    this.set('table.columns', [{ key: 'bar' }, { key: 'foo' }, { key: 'baz' }]);
-    return (0, _wait.default)().then(function () {
-      assert.equal(_this2.$('table tbody td').map(function (i, item) {
-        return item.innerHTML;
-      }).toArray().join(','), '2,1,3,5,4,6,8,7,9');
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "mrUCHrsK",
+        "block": "{\"symbols\":[],\"statements\":[[1,[20,\"d-table\"],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), '');
+    });
+
+    (0, _qunit.test)('it renders basic data by default', async function (assert) {
+      this.set('table', _tables.standardTable);
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "VQCpkakm",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-table\",null,[[\"table\"],[[22,[\"table\"]]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      // header
+      assert.equal(this.$('table thead tr td').map((i, item) => item.innerHTML.trim()).toArray().join(','), 'foo,bar,baz');
+
+      //body
+      assert.equal((0, _testHelpers.findAll)('table tbody tr').length, 3);
+      assert.equal((0, _testHelpers.findAll)('table tbody td').length, 9);
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '1,2,3,4,5,6,7,8,9');
+    });
+
+    (0, _qunit.test)('it doesnt renders headers if settings have header = false', async function (assert) {
+      this.set('table', Object.assign({}, _tables.standardTable, { settings: { header: false } }));
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "VQCpkakm",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-table\",null,[[\"table\"],[[22,[\"table\"]]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.findAll)('table thead').length, 0);
+      assert.equal((0, _testHelpers.findAll)('table tbody tr').length, 3);
+    });
+
+    (0, _qunit.test)('it renders cells with custom component', async function (assert) {
+      this.set('table', _tables.customRender);
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "VQCpkakm",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-table\",null,[[\"table\"],[[22,[\"table\"]]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal((0, _testHelpers.findAll)('table tbody tr').length, 3);
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '1,$2$$,3,4,$5$$,6,7,$8$$,9');
+    });
+
+    (0, _qunit.test)('it handles changing data', async function (assert) {
+      let changedStandardData = _tables.standardTable.data.map(i => new Ember.Object(i));
+      changedStandardData[0].set('foo', "2");
+      this.set('table', _tables.standardTable);
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "VQCpkakm",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-table\",null,[[\"table\"],[[22,[\"table\"]]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '1,2,3,4,5,6,7,8,9');
+      this.set('table', Object.assign({}, _tables.standardTable, {
+        data: changedStandardData
+      }));
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '2,2,3,4,5,6,7,8,9');
+      Ember.run(function () {
+        changedStandardData[0].set('foo', "3");
+      });
+      return (0, _testHelpers.settled)().then(() => {
+        assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '3,2,3,4,5,6,7,8,9');
+      });
+    });
+
+    (0, _qunit.test)('it handles changing column order', async function (assert) {
+      this.set('table', new Ember.Object(_tables.standardTable));
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "VQCpkakm",
+        "block": "{\"symbols\":[],\"statements\":[[1,[26,\"d-table\",null,[[\"table\"],[[22,[\"table\"]]]]],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '1,2,3,4,5,6,7,8,9');
+
+      this.set('table.columns', [{ key: 'bar' }, { key: 'foo' }, { key: 'baz' }]);
+      return (0, _testHelpers.settled)().then(() => {
+        assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), '2,1,3,5,4,6,8,7,9');
+      });
+    });
+
+    (0, _qunit.test)('it renders nested data using nested key', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.nestedDataTable));
+
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "Dk7WQO/t",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n              \"],[1,[26,\"d-table\",null,[[\"table\"],[[22,[\"table\"]]]]],false],[0,\"\\n    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal(this.$('table tbody td').map((i, item) => item.innerHTML).toArray().join(','), 'a,b,1,4,c,d,2,5,e,f,3,6');
     });
   });
-
-  (0, _emberQunit.test)('it renders nested data using nested key', function (assert) {
-
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.nestedDataTable));
-
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "RoCSpNMe",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n            \"],[1,[25,\"d-table\",null,[[\"table\"],[[20,[\"table\"]]]]],false],[0,\"\\n  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody td').map(function (i, item) {
-      return item.innerHTML;
-    }).toArray().join(','), 'a,b,1,4,c,d,2,5,e,f,3,6');
-  });
 });
-define('dummy/tests/integration/components/d-tbody-test', ['ember-qunit'], function (_emberQunit) {
+define('dummy/tests/integration/components/d-tbody-test', ['qunit', 'ember-qunit', '@ember/test-helpers'], function (_qunit, _emberQunit, _testHelpers) {
   'use strict';
 
-  (0, _emberQunit.moduleForComponent)('d-tbody', 'Integration | Component | z tbody', {
-    integration: true
-  });
+  (0, _qunit.module)('Integration | Component | z tbody', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
 
-  (0, _emberQunit.test)('it renders', function (assert) {
+    (0, _qunit.test)('it renders', async function (assert) {
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
 
-    this.render(Ember.HTMLBars.template({
-      "id": "rzh9Um6K",
-      "block": "{\"symbols\":[],\"statements\":[[1,[18,\"d-tbody\"],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "Hs9Vqnj+",
+        "block": "{\"symbols\":[],\"statements\":[[1,[20,\"d-tbody\"],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
 
-    assert.equal(this.$().text().trim(), '');
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), '');
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "/mBNOOxm",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-tbody\",null,null,{\"statements\":[[0,\"      template block text\\n\"]],\"parameters\":[]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "Kn42PJuw",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-tbody\",null,null,{\"statements\":[[0,\"        template block text\\n\"]],\"parameters\":[]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
 
-    assert.equal(this.$().text().trim(), 'template block text');
-  });
-});
-define('dummy/tests/integration/components/d-tr-test', ['ember-qunit', 'dummy/tests/datasets/tables'], function (_emberQunit, _tables) {
-  'use strict';
-
-  (0, _emberQunit.moduleForComponent)('d-tr', 'Integration | Component | z tr', {
-    integration: true
-  });
-
-  (0, _emberQunit.test)('it renders', function (assert) {
-
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-
-    this.render(Ember.HTMLBars.template({
-      "id": "tfe6Qdeu",
-      "block": "{\"symbols\":[],\"statements\":[[1,[18,\"d-tr\"],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    assert.equal(this.$().text().trim(), '');
-
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "4slPEv3f",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-tr\",null,null,{\"statements\":[[0,\"      template block text\\n\"]],\"parameters\":[]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-
-    assert.equal(this.$().text().trim(), 'template block text');
-  });
-
-  (0, _emberQunit.test)('it renders custom tr component', function (assert) {
-
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
-    this.set('table', Object.assign({}, _tables.standardTable, {
-      settings: {
-        rowComponent: 'custom-tr'
-      }
-    }));
-
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "jtrUOceW",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n        \"],[1,[25,\"d-table\",null,[[\"table\"],[[20,[\"table\"]]]]],false],[0,\"\\n  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
-    assert.equal(this.$('table tbody').text().replace(/[^\w|;|:]/g, ''), '0;123:1;456:2;789:');
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), 'template block text');
+    });
   });
 });
-define('dummy/tests/integration/components/dtab/selectable-cell-test', ['ember-qunit'], function (_emberQunit) {
+define('dummy/tests/integration/components/d-tr-test', ['qunit', 'ember-qunit', '@ember/test-helpers', 'dummy/tests/datasets/tables'], function (_qunit, _emberQunit, _testHelpers, _tables) {
   'use strict';
 
-  (0, _emberQunit.moduleForComponent)('dtab/selectable-cell', 'Integration | Component | dtab/selectable cell', {
-    integration: true
-  });
+  (0, _qunit.module)('Integration | Component | z tr', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
 
-  (0, _emberQunit.test)('it renders', function (assert) {
+    (0, _qunit.test)('it renders', async function (assert) {
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
 
-    this.render(Ember.HTMLBars.template({
-      "id": "/irLwPjx",
-      "block": "{\"symbols\":[],\"statements\":[[1,[18,\"dtab/selectable-cell\"],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "z52tNMp+",
+        "block": "{\"symbols\":[],\"statements\":[[1,[20,\"d-tr\"],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
 
-    assert.equal(this.$().text().trim(), '');
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), '');
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "0I1KnvA8",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"dtab/selectable-cell\",null,null,{\"statements\":[[0,\"      template block text\\n\"]],\"parameters\":[]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "vbojvAx/",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"d-tr\",null,null,{\"statements\":[[0,\"        template block text\\n\"]],\"parameters\":[]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
 
-    assert.equal(this.$().text().trim(), 'template block text');
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), 'template block text');
+    });
+
+    (0, _qunit.test)('it renders custom tr component', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+      this.set('table', Object.assign({}, _tables.standardTable, {
+        settings: {
+          rowComponent: 'custom-tr'
+        }
+      }));
+
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "53b18jj9",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n          \"],[1,[26,\"d-table\",null,[[\"table\"],[[22,[\"table\"]]]]],false],[0,\"\\n    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+      assert.equal((0, _testHelpers.find)('table tbody').textContent.replace(/[^\w|;|:]/g, ''), '0;123:1;456:2;789:');
+    });
   });
 });
-define('dummy/tests/integration/components/dtab/selectable-header-test', ['ember-qunit'], function (_emberQunit) {
+define('dummy/tests/integration/components/dtab/selectable-cell-test', ['qunit', 'ember-qunit', '@ember/test-helpers'], function (_qunit, _emberQunit, _testHelpers) {
   'use strict';
 
-  (0, _emberQunit.moduleForComponent)('dtab/selectable-header', 'Integration | Component | dtab/selectable header', {
-    integration: true
+  (0, _qunit.module)('Integration | Component | dtab/selectable cell', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
+
+    (0, _qunit.test)('it renders', async function (assert) {
+
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
+
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "LC0DQMF5",
+        "block": "{\"symbols\":[],\"statements\":[[1,[20,\"dtab/selectable-cell\"],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), '');
+
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "SLLDhwSz",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"dtab/selectable-cell\",null,null,{\"statements\":[[0,\"        template block text\\n\"]],\"parameters\":[]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), 'template block text');
+    });
   });
+});
+define('dummy/tests/integration/components/dtab/selectable-header-test', ['qunit', 'ember-qunit', '@ember/test-helpers'], function (_qunit, _emberQunit, _testHelpers) {
+  'use strict';
 
-  (0, _emberQunit.test)('it renders', function (assert) {
+  (0, _qunit.module)('Integration | Component | dtab/selectable header', function (hooks) {
+    (0, _emberQunit.setupRenderingTest)(hooks);
 
-    // Set any properties with this.set('myProperty', 'value');
-    // Handle any actions with this.on('myAction', function(val) { ... });
+    (0, _qunit.test)('it renders', async function (assert) {
 
-    this.render(Ember.HTMLBars.template({
-      "id": "EkozWB9J",
-      "block": "{\"symbols\":[],\"statements\":[[1,[18,\"dtab/selectable-header\"],false]],\"hasEval\":false}",
-      "meta": {}
-    }));
+      // Set any properties with this.set('myProperty', 'value');
+      // Handle any actions with this.on('myAction', function(val) { ... });
 
-    assert.equal(this.$().text().trim(), '');
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "2nWyK9HR",
+        "block": "{\"symbols\":[],\"statements\":[[1,[20,\"dtab/selectable-header\"],false]],\"hasEval\":false}",
+        "meta": {}
+      }));
 
-    // Template block usage:
-    this.render(Ember.HTMLBars.template({
-      "id": "O3PFtg4u",
-      "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"dtab/selectable-header\",null,null,{\"statements\":[[0,\"      template block text\\n\"]],\"parameters\":[]},null],[0,\"  \"]],\"hasEval\":false}",
-      "meta": {}
-    }));
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), '');
 
-    assert.equal(this.$().text().trim(), 'template block text');
+      // Template block usage:
+      await (0, _testHelpers.render)(Ember.HTMLBars.template({
+        "id": "bWC2IZfd",
+        "block": "{\"symbols\":[],\"statements\":[[0,\"\\n\"],[4,\"dtab/selectable-header\",null,null,{\"statements\":[[0,\"        template block text\\n\"]],\"parameters\":[]},null],[0,\"    \"]],\"hasEval\":false}",
+        "meta": {}
+      }));
+
+      assert.equal((0, _testHelpers.find)('*').textContent.trim(), 'template block text');
+    });
   });
 });
 define('dummy/tests/page-object', ['exports', 'ember-cli-page-object'], function (exports, _emberCliPageObject) {
@@ -1045,7 +1163,7 @@ define('dummy/tests/page-object', ['exports', 'ember-cli-page-object'], function
   };
 
 
-  Ember.deprecate('Importing from "test-support" is now deprecated. Please import directly from the "ember-cli-page-object" module instead.', false, {
+  Ember.deprecate(`Importing from "test-support" is now deprecated. Please import directly from the "ember-cli-page-object" module instead.`, false, {
     id: 'ember-cli-page-object.import-from-test-support',
     until: "2.0.0",
     url: "https://gist.github.com/san650/17174e4b7b1fd80b049a47eb456a7cdc#file-import-from-test-support-js"

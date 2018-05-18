@@ -1,0 +1,1 @@
+{"jsonapi":{"version":"1.0"},"data":{"type":"project","id":"ember-dyna-table","attributes":{"name":"ember-dyna-table","version":"0.0.2","navigationIndex":{}},"relationships":{"modules":{"data":[]}}}}
