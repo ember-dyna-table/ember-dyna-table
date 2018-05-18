@@ -4,5 +4,11 @@
     "tag": null,
     "path": "7-move-docs",
     "name": "7-move-docs"
+  },
+  "master": {
+    "path": "master",
+    "name": "master",
+    "sha": "acf2a05f2fa08a78f5bae3c57ee812657d01cae3",
+    "tag": null
   }
 }
