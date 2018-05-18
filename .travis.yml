@@ -28,6 +28,10 @@ install:
 script:
 - yarn lint:js
 - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO test --skip-cleanup
+after_success:
+  - if [[ ($TRAVIS_BRANCH == master || -n $TRAVIS_TAG) && $EMBER_TRY_SCENARIO == ember-default ]]; then
+      node_modules/.bin/ember deploy production;
+    fi
 packages:
 - google-chrome-stable
 after_success:
