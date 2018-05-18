@@ -8,6 +8,8 @@ addons:
 cache:
   directories:
   - "$HOME/.npm"
+packages:
+- google-chrome-stable
 env:
   global:
   - JOBS=1
@@ -29,11 +31,8 @@ script:
 - npm run lint:js
 - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO test --skip-cleanup
 after_success:
-  - if [[ ($TRAVIS_BRANCH == master || -n $TRAVIS_TAG) && $EMBER_TRY_SCENARIO == ember-default ]]; then
-      node_modules/.bin/ember deploy production;
-    fi
-packages:
-- google-chrome-stable
-after_success:
 - chmod +x .travis/codecoverage.sh
 - if [[ $EMBER_TRY_SCENARIO == 'ember-default' ]]; then .travis/codecoverage.sh; fi
+- if [[ ($TRAVIS_BRANCH == master || -n $TRAVIS_TAG) && $EMBER_TRY_SCENARIO == ember-default ]]; then
+    node_modules/.bin/ember deploy production;
+  fi
